@@ -1,31 +1,36 @@
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.wait import WebDriverWait
 from locators.home_page_locators import HomePageLocators
-from selenium.common.exceptions import TimeoutException
+from data import TestUrl
+from pages.base_page import BasePage
+import allure
 
 
-class HomePage:
-    
-    def __init__(self, driver):
-        self.driver = driver
-        self.wait = WebDriverWait(driver, 5)
+class HomePage(BasePage):
+    @allure.step('Клик по вопросу из Faq')
+    def click_question(self, question_locator):
+       self.scroll_to_element(question_locator)
+       self.click_element(question_locator)
 
-    def click_question_and_verify_answer(self, question_locator):
-       element = self.wait.until(EC.presence_of_element_located(question_locator))
-       self.driver.execute_script("arguments[0].scrollIntoView();", element) 
-       self.wait.until(EC.element_to_be_clickable(question_locator)).click()
-
+    @allure.step('Проверка открытия соответствующего ответа')
     def answer_is_displayed(self, answer_locator):
-        try:
-            return self.wait.until(EC.visibility_of_element_located(answer_locator)).is_displayed()
-        except TimeoutException:
-            return False
+        return self.wait_element_is_displayed(answer_locator)
        
+    @allure.step('Клик по лого "Самоката"')
     def click_logo_samocat(self):
-        self.wait.until(EC.element_to_be_clickable(HomePageLocators.HEADER_LOGO_SCOOTER)).click()
+        self.click_element(HomePageLocators.HEADER_LOGO_SCOOTER)
 
+    @allure.step('Клик по лого "Яндекса"')
     def click_logo_yndx(self):
-        self.wait.until(EC.element_to_be_clickable(HomePageLocators.HEADER_LOGO_YNDX)).click()
+        self.click_element(HomePageLocators.HEADER_LOGO_YNDX)
         self.driver.switch_to.window(self.driver.window_handles[1])
-        self.wait.until(EC.url_contains("https://dzen.ru/?yredirect=true"))
+        self.wait.until(EC.url_contains(TestUrl.YNDX_URL))
+
+    @allure.step('Клик по "Заказать" на хедере')
+    def click_order_in_header(self):
+        self.click_element(HomePageLocators.HEADER_ORDER_BUTTON)
+        
+    @allure.step('Клик по "Заказать" внизу страницы')
+    def click_order_big_button(self):
+        self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        self.click_element(HomePageLocators.BIG_ORDER_BUTTON)
         

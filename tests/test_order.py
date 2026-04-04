@@ -1,19 +1,24 @@
 from pages.order_page import OrderForm
+from pages.home_page import HomePage
 from data import TestUrl, OrderData
 import pytest
+import allure
  
 
 class TestOrder:
     
+    @allure.title('Проверка перехода к форме заказа после клика по "Заказать" внизу страницы')
     def test_clickable_big_order_button(self, browser):
-        big_button = OrderForm(browser)
-        big_button.click_order_big_button()
+        home_order = HomePage(browser)
+        home_order.click_order_big_button()
         assert browser.current_url == TestUrl.ORDER_URL
         
     @pytest.mark.parametrize("order_data", OrderData.ALL_ORDERS)
+    @allure.title('Проверка создания заказа самоката')
     def test_take_order(self, browser, order_data):
         order = OrderForm(browser)
-        order.click_order_in_header()
+        home_order = HomePage(browser)
+        home_order.click_order_in_header()
         order.set_name(order_data["name"])
         order.set_last_name(order_data["last_name"])
         order.set_adds(order_data["address"])
